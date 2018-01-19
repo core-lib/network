@@ -24,7 +24,7 @@ public class URLDownloaderTests {
     public void testHttps() throws Exception {
         File file = File.createTempFile("Form", ".tmp");
         URLDownloader
-                .download("https://image3.myjuniu.com/513d03b1665344e9a629d96dfaae6f63_dev_91fdfad6a7f1d42cd005a94c312caa9d")
+                .download("http://image3.myjuniu.com/513d03b1665344e9a629d96dfaae6f63_dev_91fdfad6a7f1d42cd005a94c312caa9d")
                 .block()
                 .to(file);
         System.out.println(file);

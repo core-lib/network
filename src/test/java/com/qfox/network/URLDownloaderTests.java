@@ -67,7 +67,7 @@ public class URLDownloaderTests {
                         }
                     }
                 })
-                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download5.mp4");
+                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download6.mp4");
         synchronized (lock) {
             lock.wait();
         }

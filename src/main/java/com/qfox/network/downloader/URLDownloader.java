@@ -52,7 +52,7 @@ public class URLDownloader {
     }
 
     public static URLDownloader download(String protocol, String host, String file) throws MalformedURLException {
-        return download(protocol, host, file);
+        return download(new URL(protocol, host, file));
     }
 
     public static URLDownloader download(URL url) {

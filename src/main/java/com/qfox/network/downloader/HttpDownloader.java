@@ -32,7 +32,7 @@ public class HttpDownloader extends BlockDownloader<HttpDownloader> {
         }
         this.file = file;
         if (url == null) {
-            throw new IllegalArgumentException("you shoud tell me the url to download");
+            throw new IllegalArgumentException("you should tell me the url to download");
         }
         if (override) {
             file.delete();
@@ -68,7 +68,7 @@ public class HttpDownloader extends BlockDownloader<HttpDownloader> {
 
             int code = connection.getResponseCode();
             if (code < 200 || code >= 300) {
-                throw new IOException("server reponse unexpected code " + code + " and message " + connection.getResponseMessage());
+                throw new IOException("server response unexpected code " + code + " and message " + connection.getResponseMessage());
             }
 
             long length = connection.getContentLength();
@@ -103,7 +103,7 @@ public class HttpDownloader extends BlockDownloader<HttpDownloader> {
         }
         this.output = output;
         if (url == null) {
-            throw new IllegalArgumentException("you shoud tell me the url to download");
+            throw new IllegalArgumentException("you should tell me the url to download");
         }
         this.aborted = false;
         connection = (HttpURLConnection) url.openConnection();
@@ -129,7 +129,7 @@ public class HttpDownloader extends BlockDownloader<HttpDownloader> {
 
             int code = connection.getResponseCode();
             if (code < 200 || code >= 300) {
-                throw new IOException("server reponse unexpected code " + code + " and message " + connection.getResponseMessage());
+                throw new IOException("server response unexpected code " + code + " and message " + connection.getResponseMessage());
             }
 
             long length = connection.getContentLength();

@@ -191,7 +191,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         this.file = file;
         this.started = false;
         this.progresses = new long[concurrent];
-        delegate.listener(this).callback(this).to(System.out);
+        delegate.listener(this).callback(this).to(file);
     }
 
     public File file() {

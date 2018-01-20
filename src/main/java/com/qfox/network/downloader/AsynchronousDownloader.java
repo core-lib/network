@@ -1,5 +1,7 @@
 package com.qfox.network.downloader;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * <p>
  * Description:
@@ -20,5 +22,7 @@ public interface AsynchronousDownloader<T extends AsynchronousDownloader<T>> ext
 	T callback(Callback callback);
 
 	Callback callback();
+
+	T use(ExecutorService executor);
 
 }

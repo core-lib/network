@@ -4,6 +4,8 @@ import com.qfox.network.downloader.*;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * <p>
@@ -22,37 +24,27 @@ public class URLDownloaderTests {
 
     @Test
     public void testHttps() throws Exception {
-        File file = File.createTempFile("Form", ".tmp");
+        ExecutorService executor = Executors.newCachedThreadPool();
+        final File file = File.createTempFile("Form", ".tmp");
         URLDownloader
                 .download("http://image3.myjuniu.com/513d03b1665344e9a629d96dfaae6f63_dev_91fdfad6a7f1d42cd005a94c312caa9d")
-                .block()
+                .asynchronous(executor)
+                .callback(new CallbackAdapter() {
+                    @Override
+                    public void success(AsynchronousDownloader<?> downloader) {
+                        System.out.println(file);
+                    }
+                })
                 .to(file);
-        System.out.println(file);
+        Thread.sleep(10000);
     }
 
     @Test
     public void testConcurrent() throws Exception {
+        ExecutorService executor = Executors.newCachedThreadPool();
         URLDownloader.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
-                .concurrent(3)
+                .concurrent(executor, 3)
                 .times(3)
-                .listener(new ListenerAdapter() {
-
-                    @Override
-                    public void start(Downloader<?> downloader, long total) {
-                        System.out.println(System.currentTimeMillis());
-                    }
-
-                    @Override
-                    public void progress(Downloader<?> downloader, long total, long downloaded) {
-                        System.out.println(downloaded + "/" + total);
-                    }
-
-                    @Override
-                    public void finish(Downloader<?> downloader, long total) {
-                        System.out.println(System.currentTimeMillis());
-                    }
-
-                })
                 .callback(new CallbackAdapter() {
                     @Override
                     public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
@@ -61,7 +53,7 @@ public class URLDownloaderTests {
                         }
                     }
                 })
-                .to("/Users/yangchangpei/Documents/download.mp4");
+                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download.mp4");
         Thread.sleep(1000 * 1000);
     }
 

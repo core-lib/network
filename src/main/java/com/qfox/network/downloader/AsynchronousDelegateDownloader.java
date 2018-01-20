@@ -6,235 +6,237 @@ import java.io.File;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author yangchangpei 646742615@qq.com
- *
- * @date 2015年8月13日 下午7:22:58
- *
  * @version 1.0.0
+ * @date 2015年8月13日 下午7:22:58
  */
 public class AsynchronousDelegateDownloader implements AsynchronousDownloader<AsynchronousDelegateDownloader>, Listener {
-	private Downloader<?> delegate;
-	private Callback callback = new CallbackAdapter();
-	private Listener listener = new ListenerAdapter();
-	private File file;
-	private OutputStream stream;
-	private DataOutput output;
+    private Downloader<?> delegate;
+    private Callback callback = new CallbackAdapter();
+    private Listener listener = new ListenerAdapter();
+    private File file;
+    private OutputStream stream;
+    private DataOutput output;
+    private ExecutorService executor;
 
-	public AsynchronousDelegateDownloader(Downloader<?> delegate) {
-		super();
-		this.delegate = delegate;
-	}
+    AsynchronousDelegateDownloader(Downloader<?> delegate) {
+        super();
+        this.delegate = delegate;
+    }
 
-	public AsynchronousDelegateDownloader callback(Callback callback) {
-		if (callback == null) {
-			throw new IllegalArgumentException("callback must not be this");
-		}
-		this.callback = callback;
-		return this;
-	}
+    public AsynchronousDelegateDownloader callback(Callback callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("callback must not be this");
+        }
+        this.callback = callback;
+        return this;
+    }
 
-	public Callback callback() {
-		return callback;
-	}
+    public Callback callback() {
+        return callback;
+    }
 
-	public AsynchronousDelegateDownloader tag(int tag) {
-		delegate.tag(tag);
-		return this;
-	}
+    public AsynchronousDelegateDownloader use(ExecutorService executor) {
+        this.executor = executor;
+        return this;
+    }
 
-	public int tag() {
-		return delegate.tag();
-	}
+    public AsynchronousDelegateDownloader tag(int tag) {
+        delegate.tag(tag);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader from(String url) throws MalformedURLException {
-		delegate.from(url);
-		return this;
-	}
+    public int tag() {
+        return delegate.tag();
+    }
 
-	public AsynchronousDelegateDownloader from(String protocol, String host, int port, String file) throws MalformedURLException {
-		delegate.from(protocol, host, port, file);
-		return this;
-	}
+    public AsynchronousDelegateDownloader from(String url) throws MalformedURLException {
+        delegate.from(url);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader from(String protocol, String host, String file) throws MalformedURLException {
-		delegate.from(protocol, host, file);
-		return this;
-	}
+    public AsynchronousDelegateDownloader from(String protocol, String host, int port, String file) throws MalformedURLException {
+        delegate.from(protocol, host, port, file);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader from(URL url) {
-		delegate.from(url);
-		return this;
-	}
+    public AsynchronousDelegateDownloader from(String protocol, String host, String file) throws MalformedURLException {
+        delegate.from(protocol, host, file);
+        return this;
+    }
 
-	public URL url() {
-		return delegate.url();
-	}
+    public AsynchronousDelegateDownloader from(URL url) {
+        delegate.from(url);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader range(Range range) {
-		delegate.range(range);
-		return this;
-	}
+    public URL url() {
+        return delegate.url();
+    }
 
-	public Range range() {
-		return delegate.range();
-	}
+    public AsynchronousDelegateDownloader range(Range range) {
+        delegate.range(range);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader buffer(int buffer) {
-		delegate.buffer(buffer);
-		return this;
-	}
+    public Range range() {
+        return delegate.range();
+    }
 
-	public int buffer() {
-		return delegate.buffer();
-	}
+    public AsynchronousDelegateDownloader buffer(int buffer) {
+        delegate.buffer(buffer);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader timeout(int timeout) {
-		delegate.timeout(timeout);
-		return this;
-	}
+    public int buffer() {
+        return delegate.buffer();
+    }
 
-	public int timeout() {
-		return delegate.timeout();
-	}
+    public AsynchronousDelegateDownloader timeout(int timeout) {
+        delegate.timeout(timeout);
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader listener(Listener listener) {
-		if (listener == null) {
-			new NullPointerException("listner can not be null");
-		}
-		this.listener = listener;
-		return this;
-	}
+    public int timeout() {
+        return delegate.timeout();
+    }
 
-	public Listener listener() {
-		return listener;
-	}
+    public AsynchronousDelegateDownloader listener(Listener listener) {
+        if (listener == null) {
+            throw new NullPointerException("listner can not be null");
+        }
+        this.listener = listener;
+        return this;
+    }
 
-	public AsynchronousDelegateDownloader override(boolean override) {
-		delegate.override(override);
-		return this;
-	}
+    public Listener listener() {
+        return listener;
+    }
 
-	public boolean override() {
-		return delegate.override();
-	}
+    public AsynchronousDelegateDownloader override(boolean override) {
+        delegate.override(override);
+        return this;
+    }
 
-	public void to(String filepath) {
-		to(new File(filepath));
-	}
+    public boolean override() {
+        return delegate.override();
+    }
 
-	public void to(final File file) {
-		if (file == null) {
-			throw new NullPointerException("can not output to null file");
-		}
-		this.file = file;
-		delegate.listener(this);
-		new Thread(new Runnable() {
+    public void to(String filepath) {
+        to(new File(filepath));
+    }
 
-			public void run() {
-				Exception exception = null;
-				try {
-					delegate.to(file);
-				} catch (Exception e) {
-					exception = e;
-				}
-				try {
-					if (exception == null) {
-						callback.success(AsynchronousDelegateDownloader.this);
-					} else {
-						callback.failure(AsynchronousDelegateDownloader.this, exception);
-					}
-				} finally {
-					callback.complete(AsynchronousDelegateDownloader.this, exception == null, exception);
-				}
-			}
+    public void to(File file) {
+        if (file == null) throw new NullPointerException("can not output to null file");
+        this.file = file;
+        delegate.listener(this);
+        executor.execute(new Downloading(delegate, this, callback, file));
+    }
 
-		}).start();
-	}
+    public File file() {
+        return file;
+    }
 
-	public File file() {
-		return file;
-	}
+    public void to(OutputStream stream) {
+        if (stream == null) throw new NullPointerException("can not output to null stream");
+        DataOutput output = new DataOutputStream(this.stream = stream);
+        to(output);
+    }
 
-	public void to(OutputStream stream) {
-		if (stream == null) {
-			throw new NullPointerException("can not output to null stream");
-		}
-		DataOutput output = new DataOutputStream(this.stream = stream);
-		to(output);
-	}
+    public OutputStream stream() {
+        return stream;
+    }
 
-	public OutputStream stream() {
-		return stream;
-	}
+    public void to(final DataOutput output) {
+        if (output == null) throw new NullPointerException("can not output to null output");
+        this.output = output;
+        delegate.listener(this);
+        executor.execute(new Downloading(delegate, this, callback, output));
+    }
 
-	public void to(final DataOutput output) {
-		if (output == null) {
-			throw new NullPointerException("can not output to null output");
-		}
-		this.output = output;
-		delegate.listener(this);
-		new Thread(new Runnable() {
+    public DataOutput output() {
+        return output;
+    }
 
-			public void run() {
-				Exception exception = null;
-				try {
-					delegate.to(output);
-				} catch (Exception e) {
-					exception = e;
-				}
-				try {
-					if (exception == null) {
-						callback.success(AsynchronousDelegateDownloader.this);
-					} else {
-						callback.failure(AsynchronousDelegateDownloader.this, exception);
-					}
-				} finally {
-					callback.complete(AsynchronousDelegateDownloader.this, exception == null, exception);
-				}
-			}
+    public void abort() {
+        delegate.abort();
+    }
 
-		}).start();
-	}
+    public boolean aborted() {
+        return delegate.aborted();
+    }
 
-	public DataOutput output() {
-		return output;
-	}
+    public AsynchronousDelegateDownloader copy() {
+        AsynchronousDelegateDownloader clone = new AsynchronousDelegateDownloader(delegate.copy());
+        clone.callback = callback;
+        clone.listener = listener;
+        return clone;
+    }
 
-	public void abort() {
-		delegate.abort();
-	}
+    public void start(Downloader<?> downloader, long total) {
+        listener.start(this, total);
+    }
 
-	public boolean aborted() {
-		return delegate.aborted();
-	}
+    public void progress(Downloader<?> downloader, long total, long downloaded) {
+        listener.progress(this, total, downloaded);
+    }
 
-	public AsynchronousDelegateDownloader copy() {
-		AsynchronousDelegateDownloader clone = new AsynchronousDelegateDownloader(delegate.copy());
-		clone.callback = callback;
-		clone.listener = listener;
-		return clone;
-	}
+    public void finish(Downloader<?> downloader, long total) {
+        listener.finish(this, total);
+    }
 
-	public void start(Downloader<?> downloader, long total) {
-		listener.start(this, total);
-	}
+    private static class Downloading implements Runnable {
+        private final Downloader<?> delegate;
+        private final AsynchronousDownloader<?> downloader;
+        private final Callback callback;
+        private final File file;
+        private final DataOutput output;
 
-	public void progress(Downloader<?> downloader, long total, long downloaded) {
-		listener.progress(this, total, downloaded);
-	}
+        Downloading(Downloader<?> delegate, AsynchronousDownloader<?> downloader, Callback callback, File file) {
+            this.delegate = delegate;
+            this.downloader = downloader;
+            this.callback = callback;
+            this.file = file;
+            this.output = null;
+        }
 
-	public void finish(Downloader<?> downloader, long total) {
-		listener.finish(this, total);
-	}
+        Downloading(Downloader<?> delegate, AsynchronousDownloader<?> downloader, Callback callback, DataOutput output) {
+            this.delegate = delegate;
+            this.downloader = downloader;
+            this.callback = callback;
+            this.output = output;
+            this.file = null;
+        }
+
+        public void run() {
+            Exception exception = null;
+            try {
+                if (file != null) delegate.to(file);
+                else delegate.to(output);
+            } catch (Exception e) {
+                exception = e;
+            }
+            try {
+                if (exception == null) {
+                    callback.success(downloader);
+                } else {
+                    callback.failure(downloader, exception);
+                }
+            } finally {
+                callback.complete(downloader, exception == null, exception);
+            }
+        }
+    }
 
 }

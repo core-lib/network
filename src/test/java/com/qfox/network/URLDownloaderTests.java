@@ -1,8 +1,6 @@
 package com.qfox.network;
 
-import com.qfox.network.downloader.AsynchronousDownloader;
-import com.qfox.network.downloader.CallbackAdapter;
-import com.qfox.network.downloader.URLDownloader;
+import com.qfox.network.downloader.*;
 import org.junit.Test;
 
 import java.io.File;
@@ -48,6 +46,19 @@ public class URLDownloaderTests {
         URLDownloader.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
                 .concurrent(executor, 3)
                 .times(3)
+                .listener(new Listener() {
+                    public void start(Downloader<?> downloader, long total) {
+
+                    }
+
+                    public void progress(Downloader<?> downloader, long total, long downloaded) {
+                        System.out.println(downloaded + " / " + total);
+                    }
+
+                    public void finish(Downloader<?> downloader, long total) {
+
+                    }
+                })
                 .callback(new CallbackAdapter() {
                     @Override
                     public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
@@ -56,7 +67,7 @@ public class URLDownloaderTests {
                         }
                     }
                 })
-                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download2.mp4");
+                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download5.mp4");
         synchronized (lock) {
             lock.wait();
         }

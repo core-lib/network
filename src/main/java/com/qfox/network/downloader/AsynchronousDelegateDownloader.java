@@ -181,6 +181,7 @@ public class AsynchronousDelegateDownloader implements AsynchronousDownloader<As
         AsynchronousDelegateDownloader clone = new AsynchronousDelegateDownloader(delegate.copy());
         clone.callback = callback;
         clone.listener = listener;
+        clone.executor = executor;
         return clone;
     }
 

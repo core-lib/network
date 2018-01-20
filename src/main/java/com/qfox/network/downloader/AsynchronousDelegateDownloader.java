@@ -23,8 +23,8 @@ import java.util.concurrent.ExecutorService;
  */
 public class AsynchronousDelegateDownloader implements AsynchronousDownloader<AsynchronousDelegateDownloader>, Listener {
     private Downloader<?> delegate;
-    private Callback callback = new CallbackAdapter();
-    private Listener listener = new ListenerAdapter();
+    private CallbackWrapper callback = new CallbackWrapper();
+    private ListenerWrapper listener = new ListenerWrapper();
     private File file;
     private OutputStream stream;
     private DataOutput output;
@@ -36,15 +36,27 @@ public class AsynchronousDelegateDownloader implements AsynchronousDownloader<As
     }
 
     public AsynchronousDelegateDownloader callback(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("callback must not be this");
-        }
-        this.callback = callback;
+        this.callback.setCallback(callback);
         return this;
     }
 
     public Callback callback() {
-        return callback;
+        return callback.getCallback();
+    }
+
+    public AsynchronousDelegateDownloader success(OnSuccess onSuccess) {
+        this.callback.setOnSuccess(onSuccess);
+        return this;
+    }
+
+    public AsynchronousDelegateDownloader failure(OnFailure onFailure) {
+        this.callback.setOnFailure(onFailure);
+        return this;
+    }
+
+    public AsynchronousDelegateDownloader complete(OnComplete onComplete) {
+        this.callback.setOnComplete(onComplete);
+        return this;
     }
 
     public AsynchronousDelegateDownloader use(ExecutorService executor) {
@@ -113,15 +125,30 @@ public class AsynchronousDelegateDownloader implements AsynchronousDownloader<As
     }
 
     public AsynchronousDelegateDownloader listener(Listener listener) {
-        if (listener == null) {
-            throw new NullPointerException("listner can not be null");
-        }
-        this.listener = listener;
+        this.listener.setListener(listener);
         return this;
     }
 
     public Listener listener() {
-        return listener;
+        return listener.getListener();
+    }
+
+    @Override
+    public AsynchronousDelegateDownloader start(WhenStart whenStart) {
+        this.listener.setWhenStart(whenStart);
+        return this;
+    }
+
+    @Override
+    public AsynchronousDelegateDownloader progress(WhenProgress whenProgress) {
+        this.listener.setWhenProgress(whenProgress);
+        return this;
+    }
+
+    @Override
+    public AsynchronousDelegateDownloader finish(WhenFinish whenFinish) {
+        this.listener.setWhenFinish(whenFinish);
+        return this;
     }
 
     public AsynchronousDelegateDownloader override(boolean override) {

@@ -26,7 +26,7 @@ import java.net.URL;
 public abstract class BlockDownloader<T extends BlockDownloader<T>> implements Downloader<T> {
 	protected URL url;
 	protected Range range = Range.ZERO;
-	protected Listener listener = new ListenerAdapter();
+	protected ListenerWrapper listener = new ListenerWrapper();
 	protected int timeout = 60 * 60 * 1000;
 	protected int buffer = 1024 * 8;
 	protected boolean override = true;
@@ -118,15 +118,30 @@ public abstract class BlockDownloader<T extends BlockDownloader<T>> implements D
 	}
 
 	public T listener(Listener listener) {
-		if (listener == null) {
-			throw new NullPointerException("listener can not be null");
-		}
-		this.listener = listener;
+		this.listener.setListener(listener);
 		return self();
 	}
 
 	public Listener listener() {
-		return listener;
+		return listener.getListener();
+	}
+
+	@Override
+	public T start(WhenStart whenStart) {
+		this.listener.setWhenStart(whenStart);
+		return self();
+	}
+
+	@Override
+	public T progress(WhenProgress whenProgress) {
+		this.listener.setWhenProgress(whenProgress);
+		return self();
+	}
+
+	@Override
+	public T finish(WhenFinish whenFinish) {
+		this.listener.setWhenFinish(whenFinish);
+		return self();
 	}
 
 	public void to(String filepath) throws IOException {

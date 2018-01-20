@@ -55,6 +55,12 @@ public interface Downloader<T extends Downloader<T>> extends Cloneable {
 
 	Listener listener();
 
+	T start(WhenStart whenStart);
+
+	T progress(WhenProgress whenProgress);
+
+	T finish(WhenFinish whenFinish);
+
 	T override(boolean override);
 
 	boolean override();

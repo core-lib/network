@@ -23,8 +23,8 @@ import java.util.concurrent.ExecutorService;
 public class ConcurrentDelegateDownloader implements ConcurrentDownloader<ConcurrentDelegateDownloader>, Listener, Callback {
     private ResumableDownloader<?> delegate;
     private int concurrent = 5;
-    private Callback callback = new CallbackAdapter();
-    private Listener listener = new ListenerAdapter();
+    private CallbackWrapper callback = new CallbackWrapper();
+    private ListenerWrapper listener = new ListenerWrapper();
     private Range range = Range.ZERO;
     private boolean override = true;
     private boolean aborted;
@@ -69,15 +69,27 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     }
 
     public ConcurrentDelegateDownloader callback(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("callback must be not this");
-        }
-        this.callback = callback;
+        this.callback.setCallback(callback);
         return this;
     }
 
     public Callback callback() {
-        return callback;
+        return callback.getCallback();
+    }
+
+    public ConcurrentDelegateDownloader success(OnSuccess onSuccess) {
+        this.callback.setOnSuccess(onSuccess);
+        return this;
+    }
+
+    public ConcurrentDelegateDownloader failure(OnFailure onFailure) {
+        this.callback.setOnFailure(onFailure);
+        return this;
+    }
+
+    public ConcurrentDelegateDownloader complete(OnComplete onComplete) {
+        this.callback.setOnComplete(onComplete);
+        return this;
     }
 
     public ConcurrentDelegateDownloader use(ExecutorService executor) {
@@ -147,15 +159,30 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     }
 
     public ConcurrentDelegateDownloader listener(Listener listener) {
-        if (listener == null) {
-            throw new NullPointerException("listner can not be null");
-        }
-        this.listener = listener;
+        this.listener.setListener(listener);
         return this;
     }
 
     public Listener listener() {
-        return listener;
+        return listener.getListener();
+    }
+
+    @Override
+    public ConcurrentDelegateDownloader start(WhenStart whenStart) {
+        this.listener.setWhenStart(whenStart);
+        return this;
+    }
+
+    @Override
+    public ConcurrentDelegateDownloader progress(WhenProgress whenProgress) {
+        this.listener.setWhenProgress(whenProgress);
+        return this;
+    }
+
+    @Override
+    public ConcurrentDelegateDownloader finish(WhenFinish whenFinish) {
+        this.listener.setWhenFinish(whenFinish);
+        return this;
     }
 
     public ConcurrentDelegateDownloader override(boolean override) {

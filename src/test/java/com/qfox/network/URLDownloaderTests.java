@@ -1,6 +1,8 @@
 package com.qfox.network;
 
-import com.qfox.network.downloader.*;
+import com.qfox.network.downloader.AsynchronousDownloader;
+import com.qfox.network.downloader.CallbackAdapter;
+import com.qfox.network.downloader.URLDownloader;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,38 +41,23 @@ public class URLDownloaderTests {
         Thread.sleep(10000);
     }
 
+    private synchronized void lock() throws InterruptedException {
+        this.wait();
+    }
+
+    private synchronized void open() {
+        this.notify();
+    }
+
     @Test
     public void testConcurrent() throws Exception {
-        final Object lock = new Object();
-        ExecutorService executor = Executors.newCachedThreadPool();
-        URLDownloader.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
-                .concurrent(executor, 3)
-                .times(3)
-                .listener(new Listener() {
-                    public void start(Downloader<?> downloader, long total) {
-
-                    }
-
-                    public void progress(Downloader<?> downloader, long total, long downloaded) {
-                        System.out.println(downloaded + " / " + total);
-                    }
-
-                    public void finish(Downloader<?> downloader, long total) {
-
-                    }
-                })
-                .callback(new CallbackAdapter() {
-                    @Override
-                    public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
-                        synchronized (lock) {
-                            lock.notify();
-                        }
-                    }
-                })
-                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download6.mp4");
-        synchronized (lock) {
-            lock.wait();
-        }
+//        ExecutorService executor = Executors.newCachedThreadPool();
+//        URLDownloader.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+//                .asynchronous(executor)
+//                .progress(((downloader, total, downloaded) -> System.out.println(downloaded + " / " + total)))
+//                .complete((downloader, success, exception) -> open())
+//                .to("C:\\Users\\Administrator\\AppData\\Local\\Temp\\download12.mp4");
+//        lock();
     }
 
 }

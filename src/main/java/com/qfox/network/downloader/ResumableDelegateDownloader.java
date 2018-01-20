@@ -10,8 +10,8 @@ import java.util.concurrent.ExecutorService;
 
 public class ResumableDelegateDownloader implements ResumableDownloader<ResumableDelegateDownloader>, Listener, Callback {
     private AsynchronousDownloader<?> delegate;
-    private Callback callback = new CallbackAdapter();
-    private Listener listener = new ListenerAdapter();
+    private CallbackWrapper callback = new CallbackWrapper();
+    private ListenerWrapper listener = new ListenerWrapper();
     private Range range = Range.ZERO;
     private int times = 3;
     private int retry = 0;
@@ -26,15 +26,27 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
     }
 
     public ResumableDelegateDownloader callback(Callback callback) {
-        if (callback == null) {
-            throw new NullPointerException("callback is this");
-        }
-        this.callback = callback;
+        this.callback.setCallback(callback);
         return this;
     }
 
     public Callback callback() {
-        return callback;
+        return callback.getCallback();
+    }
+
+    public ResumableDelegateDownloader success(OnSuccess onSuccess) {
+        this.callback.setOnSuccess(onSuccess);
+        return this;
+    }
+
+    public ResumableDelegateDownloader failure(OnFailure onFailure) {
+        this.callback.setOnFailure(onFailure);
+        return this;
+    }
+
+    public ResumableDelegateDownloader complete(OnComplete onComplete) {
+        this.callback.setOnComplete(onComplete);
+        return this;
     }
 
     public ResumableDelegateDownloader use(ExecutorService executor) {
@@ -103,15 +115,30 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
     }
 
     public ResumableDelegateDownloader listener(Listener listener) {
-        if (listener == null) {
-            throw new NullPointerException("listener is null");
-        }
-        this.listener = listener;
+        this.listener.setListener(listener);
         return this;
     }
 
     public Listener listener() {
-        return listener;
+        return listener.getListener();
+    }
+
+    @Override
+    public ResumableDelegateDownloader start(WhenStart whenStart) {
+        this.listener.setWhenStart(whenStart);
+        return this;
+    }
+
+    @Override
+    public ResumableDelegateDownloader progress(WhenProgress whenProgress) {
+        this.listener.setWhenProgress(whenProgress);
+        return this;
+    }
+
+    @Override
+    public ResumableDelegateDownloader finish(WhenFinish whenFinish) {
+        this.listener.setWhenFinish(whenFinish);
+        return this;
     }
 
     public ResumableDelegateDownloader override(boolean override) {

@@ -9,7 +9,7 @@ import java.util.Map;
  * @author 杨昌沛 646742615@qq.com
  * @date 2018-01-21 23:54
  **/
-public abstract class PDFKit {
+public abstract class PdfKit {
     private static final Map<String, PdfConverter> MAP = new HashMap<String, PdfConverter>();
 
     static {

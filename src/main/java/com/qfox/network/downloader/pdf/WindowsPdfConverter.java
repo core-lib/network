@@ -14,8 +14,8 @@ import java.io.InputStream;
 public class WindowsPdfConverter extends AbstractPdfConverter implements PdfConverter {
 
     public static void main(String[] args) throws IOException {
-        PdfConverter converter = new WindowsPdfConverter();
-        String pdf = converter.convert("C:\\Users\\Chang\\Downloads\\MySql开发规范.docx");
+        PdfConverter converter = PdfKit.getPdfConverter();
+        File pdf = converter.convert(new File("C:\\Users\\Chang\\Downloads\\MySql开发规范.docx"), new File("C:\\Users\\Chang\\Downloads"));
         System.out.println(pdf);
     }
 
@@ -42,7 +42,7 @@ public class WindowsPdfConverter extends AbstractPdfConverter implements PdfConv
                 }
                 default: {
                     InputStream in = process.getErrorStream();
-                    String msg = IOKit.toString(in);
+                    String msg = IoKit.toString(in);
                     throw new IOException("转换失败:" + msg);
                 }
             }

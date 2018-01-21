@@ -33,7 +33,7 @@ public class LinuxPdfConverter extends AbstractPdfConverter implements PdfConver
             int code = process.waitFor();
             if (code != 0) {
                 InputStream in = process.getErrorStream();
-                String msg = IOKit.toString(in);
+                String msg = IoKit.toString(in);
                 throw new IOException("转换失败:" + msg);
             }
             return destination;

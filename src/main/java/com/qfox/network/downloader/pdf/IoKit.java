@@ -10,7 +10,7 @@ import java.io.InputStream;
  * @author 杨昌沛 646742615@qq.com
  * @date 2018-01-21 22:52
  **/
-public abstract class IOKit {
+public abstract class IoKit {
 
     /**
      * 将输入流输出成字符串

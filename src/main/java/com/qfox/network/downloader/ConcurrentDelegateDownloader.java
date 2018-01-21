@@ -261,11 +261,8 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     }
 
     public synchronized void start(Downloader<?> downloader, long total) {
-        if (started) {
-            return;
-        } else {
-            started = true;
-        }
+        if (started) return;
+        else started = true;
 
         this.all = total;
 

@@ -133,19 +133,16 @@ public class AsynchronousDelegateDownloader implements AsynchronousDownloader<As
         return listener.getListener();
     }
 
-    @Override
     public AsynchronousDelegateDownloader start(WhenStart whenStart) {
         this.listener.setWhenStart(whenStart);
         return this;
     }
 
-    @Override
     public AsynchronousDelegateDownloader progress(WhenProgress whenProgress) {
         this.listener.setWhenProgress(whenProgress);
         return this;
     }
 
-    @Override
     public AsynchronousDelegateDownloader finish(WhenFinish whenFinish) {
         this.listener.setWhenFinish(whenFinish);
         return this;

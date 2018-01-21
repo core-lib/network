@@ -14,7 +14,6 @@ public class ListenerWrapper implements Listener {
     private WhenProgress whenProgress;
     private WhenFinish whenFinish;
 
-    @Override
     public void start(Downloader<?> downloader, long total) {
         final Listener ls = listener;
         if (ls != null) ls.start(downloader, total);
@@ -23,7 +22,6 @@ public class ListenerWrapper implements Listener {
         if (ws != null) ws.start(downloader, total);
     }
 
-    @Override
     public void progress(Downloader<?> downloader, long total, long downloaded) {
         final Listener ls = listener;
         if (ls != null) ls.progress(downloader, total, downloaded);
@@ -32,7 +30,6 @@ public class ListenerWrapper implements Listener {
         if (wp != null) wp.progress(downloader, total, downloaded);
     }
 
-    @Override
     public void finish(Downloader<?> downloader, long total) {
         final Listener ls = listener;
         if (ls != null) ls.finish(downloader, total);

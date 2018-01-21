@@ -123,19 +123,16 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
         return listener.getListener();
     }
 
-    @Override
     public ResumableDelegateDownloader start(WhenStart whenStart) {
         this.listener.setWhenStart(whenStart);
         return this;
     }
 
-    @Override
     public ResumableDelegateDownloader progress(WhenProgress whenProgress) {
         this.listener.setWhenProgress(whenProgress);
         return this;
     }
 
-    @Override
     public ResumableDelegateDownloader finish(WhenFinish whenFinish) {
         this.listener.setWhenFinish(whenFinish);
         return this;

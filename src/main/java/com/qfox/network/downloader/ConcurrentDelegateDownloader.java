@@ -167,19 +167,16 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         return listener.getListener();
     }
 
-    @Override
     public ConcurrentDelegateDownloader start(WhenStart whenStart) {
         this.listener.setWhenStart(whenStart);
         return this;
     }
 
-    @Override
     public ConcurrentDelegateDownloader progress(WhenProgress whenProgress) {
         this.listener.setWhenProgress(whenProgress);
         return this;
     }
 
-    @Override
     public ConcurrentDelegateDownloader finish(WhenFinish whenFinish) {
         this.listener.setWhenFinish(whenFinish);
         return this;

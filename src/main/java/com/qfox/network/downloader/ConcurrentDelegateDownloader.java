@@ -323,7 +323,8 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         if (!success) {
             this.exception = exception;
         }
-        if (complete == downloaders.size()) {
+        // 因为获取Content-Length请求也要complete所以会多一个
+        if (complete == downloaders.size() + 1) {
             try {
                 if (success) {
                     callback.success(this);

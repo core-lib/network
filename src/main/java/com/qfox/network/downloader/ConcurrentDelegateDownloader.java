@@ -31,7 +31,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     private boolean aborted;
     private List<ResumableDownloader<?>> downloaders = new ArrayList<ResumableDownloader<?>>();
 
-    private File file;
+    private volatile File file;
     private volatile boolean started = false;
     private final Object lock = new Object();
 
@@ -42,7 +42,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     private volatile boolean success = true;
     private volatile Exception exception;
 
-    private long[] progresses;
+    private volatile long[] progresses;
 
     ConcurrentDelegateDownloader(ResumableDownloader<?> delegate) {
         super();

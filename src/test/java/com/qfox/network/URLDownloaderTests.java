@@ -27,8 +27,8 @@ public class URLDownloaderTests {
 
     @Test
     public void testHash() throws Exception {
-        byte[] md5_1 = IOUtils.hash(new FileInputStream("C:\\Users\\Administrator\\AppData\\Local\\Temp\\asynchronous5808173600282236239.mp4"), "MD5");
-        byte[] md5_2 = IOUtils.hash(new FileInputStream("C:\\Users\\Administrator\\AppData\\Local\\Temp\\concurrent3903628860360144393.mp4"), "MD5");
+        byte[] md5_1 = IOUtils.hash(new FileInputStream("C:\\Users\\Chang\\AppData\\Local\\Temp\\concurrent7113386470598141573.mp4"), "MD5");
+        byte[] md5_2 = IOUtils.hash(new FileInputStream("C:\\Users\\Chang\\AppData\\Local\\Temp\\asynchronous6498744456875679451.mp4"), "MD5");
         System.out.println(Arrays.equals(md5_1, md5_2));
     }
 
@@ -57,11 +57,11 @@ public class URLDownloaderTests {
     public void testConcurrent() throws Exception {
         ExecutorService executor = Executors.newCachedThreadPool();
         URLDownloader.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
-                .concurrent(executor, 3)
-//                .start((downloader, total) -> System.out.println("started"))
-//                .progress((downloader, total, downloaded) -> System.out.println(downloaded + " / " + total))
-//                .finish((downloader, total) -> System.out.println("finished"))
-//                .complete((downloader, success, exception) -> open())
+                .concurrent(executor, 10)
+                .start((downloader, total) -> System.out.println("started"))
+                .progress((downloader, total, downloaded) -> System.out.println(downloaded + " / " + total))
+                .finish((downloader, total) -> System.out.println("finished"))
+                .complete((downloader, success, exception) -> open())
                 .to(File.createTempFile("concurrent", ".mp4"));
         lock();
     }

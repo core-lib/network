@@ -286,18 +286,18 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
 
     public void start(Downloader<?> downloader, long total) {
         if (length == 0) {
-            listener.start(this, length = total);
+            listener.start(downloader, length = total);
         }
         remain = total;
     }
 
     public void progress(Downloader<?> downloader, long total, long downloaded) {
         remain = total - downloaded;
-        listener.progress(this, length, length - remain);
+        listener.progress(downloader, length, length - remain);
     }
 
     public void finish(Downloader<?> downloader, long total) {
-        listener.finish(this, length);
+        listener.finish(downloader, length);
     }
 
     private interface Resumption {

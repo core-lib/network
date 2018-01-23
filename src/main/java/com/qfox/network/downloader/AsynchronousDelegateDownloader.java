@@ -210,15 +210,15 @@ public class AsynchronousDelegateDownloader implements AsynchronousDownloader<As
     }
 
     public void start(Downloader<?> downloader, long total) {
-        listener.start(this, total);
+        listener.start(downloader, total);
     }
 
     public void progress(Downloader<?> downloader, long total, long downloaded) {
-        listener.progress(this, total, downloaded);
+        listener.progress(downloader, total, downloaded);
     }
 
     public void finish(Downloader<?> downloader, long total) {
-        listener.finish(this, total);
+        listener.finish(downloader, total);
     }
 
     private static class Downloading implements Runnable {

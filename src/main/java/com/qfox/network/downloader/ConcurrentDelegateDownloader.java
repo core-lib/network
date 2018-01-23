@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -28,19 +29,20 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     private Range range = Range.ZERO;
     private boolean override = true;
     private boolean aborted;
-    private transient List<ResumableDownloader<?>> downloaders = new ArrayList<ResumableDownloader<?>>();
+    private List<ResumableDownloader<?>> downloaders = new ArrayList<ResumableDownloader<?>>();
 
-    private transient File file;
-    private transient boolean started = false;
+    private File file;
+    private volatile boolean started = false;
+    private final Object lock = new Object();
 
-    private transient long all;
-    private transient int finish = 0;
+    private volatile long all;
+    private AtomicInteger finish = new AtomicInteger();
 
-    private transient int complete = 0;
-    private transient boolean success = true;
-    private transient Exception exception;
+    private AtomicInteger complete = new AtomicInteger();
+    private volatile boolean success = true;
+    private volatile Exception exception;
 
-    private transient long[] progresses;
+    private long[] progresses;
 
     ConcurrentDelegateDownloader(ResumableDownloader<?> delegate) {
         super();
@@ -262,11 +264,14 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         return clone;
     }
 
-    public synchronized void start(Downloader<?> downloader, long total) {
+    public void start(Downloader<?> downloader, long total) {
         if (started) return;
-        else started = true;
-
-        this.all = total;
+        // volatile修饰过的基本类型变量赋值操作是原子性的(引用类型不是!!!), 所以这样才能保证不会有重复调用的风险
+        synchronized (lock) {
+            if (started) return;
+            started = true;
+            all = total;
+        }
 
         RandomAccessFile raf = null;
         try {
@@ -286,7 +291,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
                         .to(file);
             }
 
-            listener.start(this, total);
+            listener.start(downloader, total);
 
             downloader.abort();
         } catch (Exception e) {
@@ -296,39 +301,31 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         }
     }
 
-    public synchronized void progress(Downloader<?> downloader, long total, long downloaded) {
+    public void progress(Downloader<?> downloader, long total, long downloaded) {
         progresses[downloader.tag()] = downloaded;
         long sum = 0;
-        for (long progress : progresses) {
-            sum += progress;
-        }
-        listener.progress(this, all, sum);
+        for (long progress : progresses) sum += progress;
+        listener.progress(downloader, all, sum);
     }
 
-    public synchronized void finish(Downloader<?> downloader, long total) {
-        finish += 1;
-        if (finish == downloaders.size()) {
-            listener.finish(this, all);
-        }
+    public void finish(Downloader<?> downloader, long total) {
+        if (finish.incrementAndGet() == downloaders.size()) listener.finish(downloader, all);
     }
 
-    public synchronized void success(AsynchronousDownloader<?> downloader) {
+    public void success(AsynchronousDownloader<?> downloader) {
     }
 
-    public synchronized void failure(AsynchronousDownloader<?> downloader, Exception exception) {
+    public void failure(AsynchronousDownloader<?> downloader, Exception exception) {
     }
 
-    public synchronized void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
-        if (downloader == delegate && downloader.aborted()) {
-            return;
-        }
-        complete += 1;
-        this.success = this.success && success;
+    public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
+        if (downloader == delegate && downloader.aborted()) return;
+        if (!success) this.success = false;
         if (!success) this.exception = exception;
         // 因为获取Content-Length请求也要complete所以会多一个
-        if (complete == downloaders.size() + 1) {
+        if (complete.incrementAndGet() == downloaders.size() + 1) {
             try {
-                if (success) callback.success(this);
+                if (this.success) callback.success(this);
                 else callback.failure(this, this.exception);
             } finally {
                 callback.complete(this, this.success, this.exception);

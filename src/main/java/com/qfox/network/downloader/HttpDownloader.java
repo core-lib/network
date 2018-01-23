@@ -1,17 +1,13 @@
 package com.qfox.network.downloader;
 
-import java.io.DataOutput;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * <p>
- * Description:
+ * Description: HTTP 协议下载器
  * </p>
  * <p>
  * <p>

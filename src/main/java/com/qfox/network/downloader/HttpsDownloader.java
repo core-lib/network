@@ -2,7 +2,7 @@ package com.qfox.network.downloader;
 
 /**
  * <p>
- * Description:
+ * Description: HTTPS 协议下载器
  * </p>
  * <p>
  * <p>

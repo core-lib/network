@@ -253,11 +253,8 @@ public class AsynchronousDelegateDownloader implements AsynchronousDownloader<As
                 exception = e;
             }
             try {
-                if (exception == null) {
-                    callback.success(downloader);
-                } else {
-                    callback.failure(downloader, exception);
-                }
+                if (exception == null) callback.success(downloader);
+                else callback.failure(downloader, exception);
             } finally {
                 callback.complete(downloader, exception == null, exception);
             }

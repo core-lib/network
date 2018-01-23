@@ -151,22 +151,30 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
         resumption = new Resumption() {
 
             public void resume(Range range) throws Exception {
-                delegate.override(false).range(range).to(filepath);
+                delegate.override(false)
+                        .range(range)
+                        .to(filepath);
             }
 
         };
-        delegate.callback(this).listener(this).to(filepath);
+        delegate.callback(this)
+                .listener(this)
+                .to(filepath);
     }
 
     public void to(final File file) throws IOException {
         resumption = new Resumption() {
 
             public void resume(Range range) throws Exception {
-                delegate.override(false).range(range).to(file);
+                delegate.override(false)
+                        .range(range)
+                        .to(file);
             }
 
         };
-        delegate.callback(this).listener(this).to(file);
+        delegate.callback(this)
+                .listener(this)
+                .to(file);
     }
 
     public File file() {
@@ -177,11 +185,15 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
         resumption = new Resumption() {
 
             public void resume(Range range) throws Exception {
-                delegate.override(false).range(range).to(stream);
+                delegate.override(false)
+                        .range(range)
+                        .to(stream);
             }
 
         };
-        delegate.callback(this).listener(this).to(stream);
+        delegate.callback(this)
+                .listener(this)
+                .to(stream);
     }
 
     public OutputStream stream() {
@@ -192,11 +204,15 @@ public class ResumableDelegateDownloader implements ResumableDownloader<Resumabl
         resumption = new Resumption() {
 
             public void resume(Range range) throws Exception {
-                delegate.override(false).range(range).to(output);
+                delegate.override(false)
+                        .range(range)
+                        .to(output);
             }
 
         };
-        delegate.callback(this).listener(this).to(output);
+        delegate.callback(this)
+                .listener(this)
+                .to(output);
     }
 
     public DataOutput output() {

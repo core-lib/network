@@ -21,7 +21,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public abstract class IOUtils {
 
-
     public static void close(Closeable closeable) {
         if (closeable == null) {
             return;

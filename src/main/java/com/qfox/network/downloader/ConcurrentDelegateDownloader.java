@@ -28,7 +28,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     private Range range = Range.ZERO;
     private boolean override = true;
     private boolean aborted;
-    private transient List<AsynchronousDownloader<?>> downloaders = new ArrayList<AsynchronousDownloader<?>>();
+    private transient List<ResumableDownloader<?>> downloaders = new ArrayList<ResumableDownloader<?>>();
 
     private transient File file;
     private transient boolean started = false;
@@ -215,7 +215,9 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         this.file = file;
         this.started = false;
         this.progresses = new long[concurrent];
-        delegate.listener(this).callback(this).to(file);
+        delegate.listener(this)
+                .callback(this)
+                .to(file);
     }
 
     public File file() {
@@ -276,7 +278,12 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
             long block = total / concurrent;
             for (int i = 0; i < downloaders.size(); i++) {
                 Range r = Range.forLength(range.start + (i * block), block + (i == concurrent - 1 ? total % concurrent : 0));
-                downloaders.get(i).callback(this).listener(this).range(r).override(false).to(file);
+                downloaders.get(i)
+                        .callback(this)
+                        .listener(this)
+                        .range(r)
+                        .override(false)
+                        .to(file);
             }
 
             listener.start(this, total);
@@ -317,17 +324,12 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         }
         complete += 1;
         this.success = this.success && success;
-        if (!success) {
-            this.exception = exception;
-        }
+        if (!success) this.exception = exception;
         // 因为获取Content-Length请求也要complete所以会多一个
         if (complete == downloaders.size() + 1) {
             try {
-                if (success) {
-                    callback.success(this);
-                } else {
-                    callback.failure(this, this.exception);
-                }
+                if (success) callback.success(this);
+                else callback.failure(this, this.exception);
             } finally {
                 callback.complete(this, this.success, this.exception);
             }

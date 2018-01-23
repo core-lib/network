@@ -38,7 +38,7 @@ public class URLDownloader {
     private URLDownloader(URL url) {
         Downloader<?> downloader = MAP.get(url.getProtocol());
         if (downloader == null) {
-            throw new IllegalArgumentException("unsupport protocol " + url.getProtocol());
+            throw new IllegalArgumentException("unsupported protocol " + url.getProtocol());
         }
         this.downloader = downloader.copy().from(url);
     }

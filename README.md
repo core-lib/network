@@ -2,9 +2,8 @@ Network
 =======
 
 Java HTTP / HTTPS Downloader Implementation
-
+<br/>
 > ## Installation
-
 ```
 <repositories>
     ...
@@ -25,9 +24,6 @@ Java HTTP / HTTPS Downloader Implementation
     ...
 </dependencies>
 ```
-
+<br/>
 > ## Usage
-
-
-
 

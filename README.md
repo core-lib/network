@@ -28,9 +28,9 @@ Java HTTP / HTTPS Downloader Implementation
 ```
 @Test
 public void testBlock() throws Exception {
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .block()
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
 }
 ```
 * ### Async Mode
@@ -38,7 +38,7 @@ public void testBlock() throws Exception {
 @Test
 public void testAsynchronous() throws Exception {
     final Object lock = new Object();
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .asynchronous()
             .callback(new CallbackAdapter() {
                 @Override
@@ -48,7 +48,7 @@ public void testAsynchronous() throws Exception {
                     }
                 }
             })
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
     synchronized (lock) {
         lock.wait();
     }
@@ -59,7 +59,7 @@ public void testAsynchronous() throws Exception {
 @Test
 public void testResumable() throws Exception {
     final Object lock = new Object();
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .resumable(3) // max retry 3 times if error occur when downloading
             .callback(new CallbackAdapter() {
                 @Override
@@ -69,7 +69,7 @@ public void testResumable() throws Exception {
                     }
                 }
             })
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
     synchronized (lock) {
         lock.wait();
     }
@@ -80,7 +80,7 @@ public void testResumable() throws Exception {
 @Test
 public void testConcurrent() throws Exception {
     final Object lock = new Object();
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .concurrent(3) // use 3 threads to download the same resource in the same time, but the server must supports it
             .times(3) // every thread max retry 3 times if error occur when downloading
             .callback(new CallbackAdapter() {
@@ -91,7 +91,7 @@ public void testConcurrent() throws Exception {
                     }
                 }
             })
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
     synchronized (lock) {
         lock.wait();
     }
@@ -102,7 +102,7 @@ public void testConcurrent() throws Exception {
 @Test
 public void testListen() throws Exception {
     final Object lock = new Object();
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .asynchronous()
             .listener(new ListenerAdapter() {
                 @Override
@@ -128,7 +128,7 @@ public void testListen() throws Exception {
                     }
                 }
             })
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
     synchronized (lock) {
         lock.wait();
     }
@@ -139,16 +139,16 @@ public void testListen() throws Exception {
 @Test
 public void testToOutputStream() throws Exception {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .block()
             .to(out);
 }
 
 @Test
 public void testToOutput() throws Exception {
-    final OutputStream out = new FileOutputStream(File.createTempFile("network", ".mp4"));
+    final OutputStream out = new FileOutputStream(File.createTempFile("network", ".tmp"));
     final DataOutput output = new DataOutputStream(out);
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .block()
             .to(output);
 }
@@ -165,7 +165,7 @@ public void testSpecifyDefaultThreadPool() throws Exception {
 public void testSpecifyCustomThreadPool() throws Exception {
     final ExecutorService executor = Executors.newFixedThreadPool(12);
     final Object lock = new Object();
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .asynchronous(executor)
             .callback(new CallbackAdapter() {
                 @Override
@@ -175,7 +175,7 @@ public void testSpecifyCustomThreadPool() throws Exception {
                     }
                 }
             })
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
     synchronized (lock) {
         lock.wait();
     }
@@ -194,7 +194,7 @@ private synchronized void open() {
 
 @Test
 public void testLambda() throws Exception {
-    Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+    Network.download(URL)
             .asynchronous()
             .start((downloader, total) -> System.out.println("download started and resource size is " + total + " bytes"))
             .progress((downloader, total, downloaded) -> System.out.println("downloading " + downloaded + " / " + total))
@@ -202,7 +202,7 @@ public void testLambda() throws Exception {
             .success(downloader -> System.out.println("download success"))
             .failure((downloader, exception) -> exception.printStackTrace())
             .complete((downloader, success, exception) -> open())
-            .to(File.createTempFile("network", ".mp4"));
+            .to(File.createTempFile("network", ".tmp"));
     lock();
 }
 ```

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>
@@ -22,8 +24,10 @@ import java.util.concurrent.ExecutorService;
  * @version 1.0.0
  * @date 2015年8月14日 下午12:06:20
  */
-public class URLDownloader {
+public class Network {
     private static final Map<String, Downloader<?>> MAP = new HashMap<String, Downloader<?>>();
+    private static final Object LOCK = new Object();
+    private static final AtomicReference<ExecutorService> DEFAULT_EXECUTOR = new AtomicReference<ExecutorService>();
 
     static {
         try {
@@ -35,7 +39,7 @@ public class URLDownloader {
 
     private final Downloader<?> downloader;
 
-    private URLDownloader(URL url) {
+    private Network(URL url) {
         Downloader<?> downloader = MAP.get(url.getProtocol());
         if (downloader == null) {
             throw new IllegalArgumentException("unsupported protocol " + url.getProtocol());
@@ -43,36 +47,64 @@ public class URLDownloader {
         this.downloader = downloader.copy().from(url);
     }
 
-    public static URLDownloader download(String url) throws MalformedURLException {
+    public static ExecutorService getDefaultExecutor() {
+        ExecutorService executor = Network.DEFAULT_EXECUTOR.get();
+        if (executor != null) return executor;
+        synchronized (LOCK) {
+            executor = Network.DEFAULT_EXECUTOR.get();
+            if (executor != null) return executor;
+            Network.DEFAULT_EXECUTOR.set(executor = Executors.newCachedThreadPool());
+            return executor;
+        }
+    }
+
+    public static void setDefaultExecutor(ExecutorService defaultExecutor) {
+        if (defaultExecutor == null) throw new IllegalArgumentException("default executor must not be null");
+        Network.DEFAULT_EXECUTOR.set(defaultExecutor);
+    }
+
+    public static Network download(String url) throws MalformedURLException {
         return download(new URL(url));
     }
 
-    public static URLDownloader download(String protocol, String host, int port, String file) throws MalformedURLException {
+    public static Network download(String protocol, String host, int port, String file) throws MalformedURLException {
         return download(new URL(protocol, host, port, file));
     }
 
-    public static URLDownloader download(String protocol, String host, String file) throws MalformedURLException {
+    public static Network download(String protocol, String host, String file) throws MalformedURLException {
         return download(new URL(protocol, host, file));
     }
 
-    public static URLDownloader download(URL url) {
-        return new URLDownloader(url);
+    public static Network download(URL url) {
+        return new Network(url);
     }
 
     public Downloader<?> block() {
         return downloader;
     }
 
+    public AsynchronousDownloader<?> asynchronous() {
+        return asynchronous(getDefaultExecutor());
+    }
+
     public AsynchronousDownloader<?> asynchronous(ExecutorService executor) {
         return new AsynchronousDelegateDownloader(block()).use(executor);
+    }
+
+    public ResumableDownloader<?> resumable(int times) {
+        return resumable(getDefaultExecutor(), times);
     }
 
     public ResumableDownloader<?> resumable(ExecutorService executor, int times) {
         return new ResumableDelegateDownloader(asynchronous(executor)).times(times);
     }
 
-    public ConcurrentDownloader<?> concurrent(ExecutorService executor, int concurrence) {
-        return new ConcurrentDelegateDownloader(resumable(executor, 0)).concurrent(concurrence);
+    public ConcurrentDownloader<?> concurrent(int concurrency) {
+        return concurrent(getDefaultExecutor(), concurrency);
+    }
+
+    public ConcurrentDownloader<?> concurrent(ExecutorService executor, int concurrency) {
+        return new ConcurrentDelegateDownloader(resumable(executor, 0)).concurrency(concurrency);
     }
 
     public static void configure(String resource) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {

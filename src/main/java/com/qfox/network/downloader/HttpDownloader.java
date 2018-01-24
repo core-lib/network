@@ -87,7 +87,7 @@ public class HttpDownloader extends BlockDownloader<HttpDownloader> {
             }
             listener.finish(this, length);
         } finally {
-            IOUtils.close(raf);
+            IoKit.close(raf);
             connection.disconnect();
             if (timer != null) timer.cancel();
         }

@@ -17,8 +17,8 @@ package com.qfox.network.downloader;
  */
 public interface ConcurrentDownloader<T extends ConcurrentDownloader<T>> extends ResumableDownloader<T> {
 
-	T concurrent(int concurrent);
+	T concurrency(int concurrent);
 
-	int concurrent();
+	int concurrency();
 
 }

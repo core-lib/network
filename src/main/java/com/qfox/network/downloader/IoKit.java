@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * <p>
- * Description:
+ * Description: IO 工具类
  * </p>
  * <p>
  * <p>
@@ -19,16 +19,14 @@ import java.security.NoSuchAlgorithmException;
  * @version 1.0.0
  * @date 2015年8月14日 上午10:07:58
  */
-public abstract class IOUtils {
+public abstract class IoKit {
 
     public static void close(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
+        if (closeable == null) return;
         try {
             closeable.close();
-        } catch (Exception e) {
-            return;
+        } catch (IOException ignored) {
+
         }
     }
 

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ConcurrentDelegateDownloader implements ConcurrentDownloader<ConcurrentDelegateDownloader>, Listener, Callback {
     private ResumableDownloader<?> delegate;
-    private int concurrent = 5;
+    private int concurrency = 5;
     private CallbackWrapper callback = new CallbackWrapper();
     private ListenerWrapper listener = new ListenerWrapper();
     private Range range = Range.ZERO;
@@ -49,16 +49,16 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         this.delegate = delegate;
     }
 
-    public ConcurrentDelegateDownloader concurrent(int concurrent) {
-        if (concurrent < 1) {
-            throw new IllegalArgumentException("concurrence must not lesser than 1");
+    public ConcurrentDelegateDownloader concurrency(int concurrency) {
+        if (concurrency < 1) {
+            throw new IllegalArgumentException("concurrency must not lesser than 1");
         }
-        this.concurrent = concurrent;
+        this.concurrency = concurrency;
         return this;
     }
 
-    public int concurrent() {
-        return concurrent;
+    public int concurrency() {
+        return concurrency;
     }
 
     public ConcurrentDelegateDownloader times(int times) {
@@ -210,13 +210,13 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
             file.createNewFile();
         }
         downloaders.clear();
-        for (int i = 0; i < concurrent; i++) {
+        for (int i = 0; i < concurrency; i++) {
             downloaders.add(delegate.copy().tag(i));
         }
         this.aborted = false;
         this.file = file;
         this.started = false;
-        this.progresses = new long[concurrent];
+        this.progresses = new long[concurrency];
         delegate.listener(this)
                 .callback(this)
                 .to(file);
@@ -227,7 +227,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     }
 
     public void to(OutputStream stream) {
-        throw new UnsupportedOperationException("concurrent download does not support output to a output stream");
+        throw new UnsupportedOperationException("concurrency download does not support output to a output stream");
     }
 
     public OutputStream stream() {
@@ -235,7 +235,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
     }
 
     public void to(final DataOutput output) {
-        throw new UnsupportedOperationException("concurrent download does not support output to a data output");
+        throw new UnsupportedOperationException("concurrency download does not support output to a data output");
     }
 
     public DataOutput output() {
@@ -256,7 +256,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
 
     public ConcurrentDelegateDownloader copy() {
         ConcurrentDelegateDownloader clone = new ConcurrentDelegateDownloader(delegate.copy());
-        clone.concurrent = concurrent;
+        clone.concurrency = concurrency;
         clone.callback = callback;
         clone.listener = listener;
         clone.range = range.copy();
@@ -280,9 +280,9 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
                 raf.setLength(range.start + total);
             }
 
-            long block = total / concurrent;
+            long block = total / concurrency;
             for (int i = 0; i < downloaders.size(); i++) {
-                Range r = Range.forLength(range.start + (i * block), block + (i == concurrent - 1 ? total % concurrent : 0));
+                Range r = Range.forLength(range.start + (i * block), block + (i == concurrency - 1 ? total % concurrency : 0));
                 downloaders.get(i)
                         .callback(this)
                         .listener(this)
@@ -297,7 +297,7 @@ public class ConcurrentDelegateDownloader implements ConcurrentDownloader<Concur
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            IOUtils.close(raf);
+            IoKit.close(raf);
         }
     }
 

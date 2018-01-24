@@ -23,7 +23,7 @@ import java.util.Arrays;
  * @version 1.0.0
  * @date 2015年8月14日 下午4:04:04
  */
-public class URLDownloaderTests {
+public class NetworkTests {
 
     @Test
     public void testHash() throws Exception {

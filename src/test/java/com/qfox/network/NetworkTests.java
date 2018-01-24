@@ -1,14 +1,11 @@
 package com.qfox.network;
 
-import com.qfox.network.downloader.AsynchronousDownloader;
-import com.qfox.network.downloader.CallbackAdapter;
-import com.qfox.network.downloader.IoKit;
-import com.qfox.network.downloader.Network;
+import com.qfox.network.downloader.*;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Arrays;
+import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * <p>
@@ -24,13 +21,6 @@ import java.util.Arrays;
  * @date 2015年8月14日 下午4:04:04
  */
 public class NetworkTests {
-
-    @Test
-    public void testHash() throws Exception {
-        byte[] md5_1 = IoKit.hash(new FileInputStream("C:\\Users\\Chang\\AppData\\Local\\Temp\\concurrent7113386470598141573.mp4"), "MD5");
-        byte[] md5_2 = IoKit.hash(new FileInputStream("C:\\Users\\Chang\\AppData\\Local\\Temp\\asynchronous6498744456875679451.mp4"), "MD5");
-        System.out.println(Arrays.equals(md5_1, md5_2));
-    }
 
     @Test
     public void testBlock() throws Exception {
@@ -77,14 +67,6 @@ public class NetworkTests {
         }
     }
 
-    private synchronized void lock() throws InterruptedException {
-        this.wait();
-    }
-
-    private synchronized void open() {
-        this.notify();
-    }
-
     @Test
     public void testConcurrent() throws Exception {
         final Object lock = new Object();
@@ -103,6 +85,106 @@ public class NetworkTests {
         synchronized (lock) {
             lock.wait();
         }
+    }
+
+    @Test
+    public void testListen() throws Exception {
+        final Object lock = new Object();
+        Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+                .asynchronous()
+                .listener(new ListenerAdapter() {
+                    @Override
+                    public void start(Downloader<?> downloader, long total) {
+                        System.out.println("download started and resource size is " + total + " bytes");
+                    }
+
+                    @Override
+                    public void progress(Downloader<?> downloader, long total, long downloaded) {
+                        System.out.println("downloading " + downloaded + " / " + total);
+                    }
+
+                    @Override
+                    public void finish(Downloader<?> downloader, long total) {
+                        System.out.println("download finished");
+                    }
+                })
+                .callback(new CallbackAdapter() {
+                    @Override
+                    public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
+                        synchronized (lock) {
+                            lock.notify();
+                        }
+                    }
+                })
+                .to(File.createTempFile("network", ".mp4"));
+        synchronized (lock) {
+            lock.wait();
+        }
+    }
+
+    @Test
+    public void testToOutputStream() throws Exception {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+                .block()
+                .to(out);
+    }
+
+    @Test
+    public void testToOutput() throws Exception {
+        final OutputStream out = new FileOutputStream(File.createTempFile("network", ".mp4"));
+        final DataOutput output = new DataOutputStream(out);
+        Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+                .block()
+                .to(output);
+    }
+
+    @Test
+    public void testSpecifyDefaultThreadPool() throws Exception {
+        final ExecutorService executor = Executors.newFixedThreadPool(12);
+        Network.setDefaultExecutor(executor);
+    }
+
+    @Test
+    public void testSpecifyCustomThreadPool() throws Exception {
+        final ExecutorService executor = Executors.newFixedThreadPool(12);
+        final Object lock = new Object();
+        Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+                .asynchronous(executor)
+                .callback(new CallbackAdapter() {
+                    @Override
+                    public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
+                        synchronized (lock) {
+                            lock.notify();
+                        }
+                    }
+                })
+                .to(File.createTempFile("network", ".mp4"));
+        synchronized (lock) {
+            lock.wait();
+        }
+    }
+
+    private synchronized void lock() throws InterruptedException {
+        this.wait();
+    }
+
+    private synchronized void open() {
+        this.notify();
+    }
+
+    @Test
+    public void testLambda() throws Exception {
+        Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+                .asynchronous()
+                .start((downloader, total) -> System.out.println("download started and resource size is " + total + " bytes"))
+                .progress((downloader, total, downloaded) -> System.out.println("downloading " + downloaded + " / " + total))
+                .finish((downloader, total) -> System.out.println("download finished"))
+                .success(downloader -> System.out.println("download success"))
+                .failure((downloader, exception) -> exception.printStackTrace())
+                .complete((downloader, success, exception) -> open())
+                .to(File.createTempFile("network", ".mp4"));
+        lock();
     }
 
 }

@@ -18,7 +18,7 @@ Java HTTP / HTTPS Downloader Implementation
     <dependency>
         <groupId>com.github.core-lib</groupId>
         <artifactId>network</artifactId>
-        <version>v1.2.2</version>
+        <version>v1.3.0</version>
     </dependency>
     ...
 </dependencies>

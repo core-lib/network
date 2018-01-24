@@ -177,12 +177,13 @@ public class NetworkTests {
     public void testLambda() throws Exception {
         Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
                 .asynchronous()
-                .start((downloader, total) -> System.out.println("download started and resource size is " + total + " bytes"))
-                .progress((downloader, total, downloaded) -> System.out.println("downloading " + downloaded + " / " + total))
-                .finish((downloader, total) -> System.out.println("download finished"))
-                .success(downloader -> System.out.println("download success"))
-                .failure((downloader, exception) -> exception.printStackTrace())
-                .complete((downloader, success, exception) -> open())
+                // NEED JDK 1.8
+//                .start((downloader, total) -> System.out.println("download started and resource size is " + total + " bytes"))
+//                .progress((downloader, total, downloaded) -> System.out.println("downloading " + downloaded + " / " + total))
+//                .finish((downloader, total) -> System.out.println("download finished"))
+//                .success(downloader -> System.out.println("download success"))
+//                .failure((downloader, exception) -> exception.printStackTrace())
+//                .complete((downloader, success, exception) -> open())
                 .to(File.createTempFile("network", ".mp4"));
         lock();
     }

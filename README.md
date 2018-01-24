@@ -81,7 +81,7 @@ public void testResumable() throws Exception {
 public void testConcurrent() throws Exception {
     final Object lock = new Object();
     Network.download(URL)
-            .concurrent(3) // use 3 threads to download same resource in the same time, but the server must supports it
+            .concurrent(3) // use 3 threads to download a resource in the same time, but the server must supports it
             .times(3) // every thread max retry 3 times if error occur when downloading
             .callback(new CallbackAdapter() {
                 @Override

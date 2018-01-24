@@ -60,7 +60,7 @@ public void testAsynchronous() throws Exception {
 public void testResumable() throws Exception {
     final Object lock = new Object();
     Network.download(URL)
-            .resumable(3) // max retry 3 times if error occur when downloading
+            .resumable(3) // max retry 3 times if error occur while downloading
             .callback(new CallbackAdapter() {
                 @Override
                 public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {
@@ -82,7 +82,7 @@ public void testConcurrent() throws Exception {
     final Object lock = new Object();
     Network.download(URL)
             .concurrent(3) // use 3 threads to download a resource in same time, but the server must supports it
-            .times(3) // every thread max retry 3 times if error occur when downloading
+            .times(3) // every thread max retry 3 times if error occur while downloading
             .callback(new CallbackAdapter() {
                 @Override
                 public void complete(AsynchronousDownloader<?> downloader, boolean success, Exception exception) {

@@ -3,7 +3,7 @@ Network
 
 Java HTTP / HTTPS Downloader Implementation
 
-##> Installation
+## > Installation
 
 ```
 <repositories>
@@ -26,7 +26,7 @@ Java HTTP / HTTPS Downloader Implementation
 </dependencies>
 ```
 
-##> Usage
+## > Usage
 
 
 

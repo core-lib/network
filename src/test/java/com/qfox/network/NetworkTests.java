@@ -24,9 +24,9 @@ public class NetworkTests {
 
     @Test
     public void testBlock() throws Exception {
-        Network.download("http://qfox.oss-cn-shenzhen.aliyuncs.com/upload/video/CUSHOW/fd84dffb-f004-4f4c-9b15-780d1b8e27af.mp4")
+        Network.download("https://image3.myjuniu.com/8bad4a8eac554e4b83ef6afdef04b252.pdf")
                 .block()
-                .to(File.createTempFile("network", ".mp4"));
+                .to(File.createTempFile("merged", ".pdf"));
     }
 
     @Test

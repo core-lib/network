@@ -63,6 +63,11 @@ public class Network {
         Network.DEFAULT_EXECUTOR.set(defaultExecutor);
     }
 
+    public static void shutdownDefaultExecutor() {
+        final ExecutorService executor = Network.DEFAULT_EXECUTOR.get();
+        if (executor != null) executor.shutdown();
+    }
+
     public static Network download(String url) throws MalformedURLException {
         return download(new URL(url));
     }

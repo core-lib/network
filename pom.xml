@@ -4,7 +4,7 @@
 
     <groupId>com.qfox</groupId>
     <artifactId>network</artifactId>
-    <version>v1.3.0</version>
+    <version>v1.3.1</version>
     <packaging>jar</packaging>
 
     <name>network</name>
